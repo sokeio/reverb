@@ -1,0 +1,12 @@
+{
+    "id":"sokeio/module-reverb",
+    "name": "Reverb",
+    "version":"v1.0.0",
+    "alias": "reverb",
+    "description": "",
+    "keywords": [],
+    "priority": 200,
+    "aliases": {},
+    "namespace":"SokeioModule\\Reverb",
+    "requires": []
+}
