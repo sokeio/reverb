@@ -61,8 +61,8 @@ class ReverbServiceProvider extends ServiceProvider
                 'key' => $app->key,
                 'secret' => $app->secret,
                 'app_id' => $app->id,
-                'options' => ($app->options),
-                'allowed_origins' => $app->allowedOrigins,
+                'options' => json_decode($app->options),
+                'allowed_origins' => json_decode($app->allowed_origins),
                 'ping_interval' => $app->ping_interval,
                 'max_message_size' => $app->max_message_size,
             ];
