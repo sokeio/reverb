@@ -56,17 +56,10 @@ class ReverbServiceProvider extends ServiceProvider
     }
     public function packageBooted()
     {
-        config(['reverb.apps.apps' => App::query()->where('is_active', 1)->get()->map(function ($app) {
-            return [
-                'key' => $app->key,
-                'secret' => $app->secret,
-                'app_id' => $app->id,
-                'options' => json_decode($app->options),
-                'allowed_origins' => json_decode($app->allowed_origins),
-                'ping_interval' => $app->ping_interval,
-                'max_message_size' => $app->max_message_size,
-            ];
-        })->toArray()]);
+        $this->app->singleton(ApplicationManager::class, function ($app) {
+            Log::debug('booting reverb');
+            return new ReverbManager($app);
+        });
         $this->bootGate();
     }
 }

@@ -1,0 +1,68 @@
+services:
+  sokeio-reverb:
+    container_name: sokeio-reverb
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: php
+      args:
+        - APP_ENV=${APP_ENV}
+    environment:
+      - APP_ENV=${APP_ENV}
+      - DB_CONNECTION:${DB_CONNECTION}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_DATABASE=${DB_DATABASE}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+    working_dir: /var/www
+    ports:
+      - 9000:8080
+    volumes:
+      - .:/var/www
+    links:
+      - sokeio-reverb-db
+    depends_on:
+      sokeio-reverb-db:
+        condition: service_healthy
+  sokeio-reverb-db:
+    image: arm64v8/mysql:8.0.37
+    # image: mysql:8.4.0
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: sokeio-reverb
+      MYSQL_USER: sokeio-reverb
+      MYSQL_PASSWORD: sokeio-reverb@123
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    ports:
+      - '3307:3306'
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      timeout: 20s
+      retries: 10
+
+  sokeio-reverb-redis:
+    image: redis/redis-stack:latest
+    restart: always
+    volumes:
+      - ./redis_data:/data
+    environment:
+      REDIS_ARGS: "--requirepass sokeio-reverb@123456"
+    ports:
+      - 6379:6379
+      - 8001:8001
+
+  phpmyadmin:
+    image: phpmyadmin
+    restart: always
+    ports:
+      - 8081:80
+    environment:
+      - PMA_ARBITRARY=1
+    depends_on:
+      sokeio-reverb-db:
+        condition: service_healthy
+networks:
+  default:
+    driver: bridge

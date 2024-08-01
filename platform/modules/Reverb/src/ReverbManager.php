@@ -3,18 +3,25 @@
 namespace SokeioModule\Reverb;
 
 use Illuminate\Support\Facades\Log;
-use Laravel\Reverb\ApplicationManager;
-use Laravel\Reverb\ConfigApplicationProvider;
+use Illuminate\Support\Manager;
+use Laravel\Reverb\Contracts\ApplicationProvider;
+use SokeioModule\Reverb\Models\App;
 
-class ReverbManager extends ApplicationManager
+class ReverbManager extends Manager
 {
     /**
      * Create an instance of the configuration driver.
      */
-    public function createConfigDriver(): ConfigApplicationProvider
+    public function createConfigDriver(): ApplicationProvider
     {
-        return new ConfigApplicationProvider(
-            collect($this->config->get('reverb.apps.apps', []))
-        );
+        Log::info('createConfigDriver');
+        return new ModelApplicationProvider(App::class);
+    }
+    /**
+     * Get the default driver name.
+     */
+    public function getDefaultDriver(): string
+    {
+        return $this->config->get('reverb.apps.provider', 'config');
     }
 }
